@@ -1,6 +1,7 @@
 import sys
 import typing
 import os
+from typing import Optional
 
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
@@ -24,8 +25,8 @@ class ActionRequest(BaseModel):
 
 
 class ResetRequest(BaseModel):
-    task_id: str = "task_1_scout"
-    seed: int = 42
+    task_id: Optional[str] = None
+    seed: Optional[int] = None
 
 
 @app.get("/health")
@@ -34,10 +35,17 @@ def health() -> dict:
 
 
 @app.post("/reset")
-def reset_endpoint(req: ResetRequest) -> dict:
+def reset_endpoint(req: Optional[ResetRequest] = None) -> dict:
     """Reset the environment with persistent singleton."""
     try:
-        obs = _env_instance.reset(task_id=req.task_id, seed=req.seed)
+        # Handle empty body or missing fields
+        if req is None:
+            req = ResetRequest()
+        
+        task_id = req.task_id or "task_1_scout"
+        seed = req.seed or 42
+        
+        obs = _env_instance.reset(task_id=task_id, seed=seed)
         return {
             "observation": obs.model_dump(),
             "reward": obs.reward,
