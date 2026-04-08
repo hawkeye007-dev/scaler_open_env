@@ -54,7 +54,8 @@ def _grade_task_1(state, config) -> float:
 			if d.os_fingerprint == node.os:
 				score += w.get(f"node_{role}_os_correct", 0)
 
-	return score
+	# Clamp to never return exactly 0.0 or 1.0
+	return max(1e-6, min(score, 1 - 1e-6))
 
 
 def _grade_task_2(state, config) -> float:
@@ -83,7 +84,8 @@ def _grade_task_2(state, config) -> float:
 	if score >= 1.0 and state.alert_level > 0.50:
 		score = 0.85
 
-	return score
+	# Clamp to never return exactly 0.0 or 1.0
+	return max(1e-6, min(score, 1 - 1e-6))
 
 
 def _grade_task_3(state, config) -> float:
