@@ -107,11 +107,12 @@ def log_step(
     )
 
 
-def log_end(success: bool, steps: int, rewards: List[float]) -> None:
+def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> None:
     """Log episode end in mandatory format."""
     rewards_str = ",".join(f"{r:.2f}" for r in rewards)  # no spaces
     success_val = str(success).lower()  # MUST be lowercase true/false
-    print(f"[END] success={success_val} steps={steps} rewards={rewards_str}", flush=True)
+    # Must include the score field exactly as [END] success=... steps=... score=... rewards=...
+    print(f"[END] success={success_val} steps={steps} score={score:.3f} rewards={rewards_str}", flush=True)
 
 
 # ============================================================================
@@ -295,7 +296,7 @@ async def run_episode(client: OpenAI, task_id: str, seed: int) -> Tuple[float, L
             except Exception as e:
                 print(f"[DEBUG] close error: {e}", flush=True)
 
-        log_end(success=success, steps=steps_taken, rewards=rewards)
+        log_end(success=success, steps=steps_taken, score=final_score, rewards=rewards)
 
     return final_score, rewards
 
