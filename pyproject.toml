@@ -6,7 +6,7 @@ build-backend = 'setuptools.backends.legacy:build'
 name = 'vulnnet-env'
 version = '1.0.0'
 requires-python = '>=3.12'
-dependencies = ['fastapi', 'uvicorn', 'pydantic>=2', 'openenv-core', 'openai']
+dependencies = ['fastapi', 'uvicorn', 'pydantic>=2', 'openenv-core', 'openai', 'aiohttp', 'httpx']
 
 [project.scripts]
 server = "server.app:main"
