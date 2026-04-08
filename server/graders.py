@@ -115,12 +115,14 @@ def _grade_task_3(state, config) -> float:
 			if milestone in state.action_history:
 				score += weight
 
-	if score >= 1.0 and state.alert_level < 0.40:
-		score = 1.0
+	# Clamp to never return exactly 0.0 or 1.0
+	# Use 1e-6 and 1 - 1e-6 as absolute boundaries
+	if score >= 0.95 and state.alert_level < 0.40:
+		score = min(score, 1 - 1e-6)  # Perfect stealth gets capped at 0.999999
 	elif score >= 0.95:
 		score = min(score, 0.95)
 
-	return score
+	return max(1e-6, min(score, 1 - 1e-6))
 
 
 _GRADERS = {
