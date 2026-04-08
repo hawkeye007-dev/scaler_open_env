@@ -278,15 +278,15 @@ async def run_episode(client: OpenAI, task_id: str, seed: int) -> Tuple[float, L
             if done:
                 break
 
-        # Determine success - use MEAN of all collected rewards, clamped to (1e-6, 1-1e-6)
+        # Determine success - use MEAN of all collected rewards, clamped to strictly (0, 1)
         raw_score = sum(rewards) / len(rewards) if rewards else 0.0
-        final_score = max(1e-6, min(raw_score, 1 - 1e-6))
+        final_score = round(min(max(raw_score, 0.01), 0.99), 3)
         success = final_score >= SUCCESS_THRESHOLD
 
     except Exception as e:
         print(f"[DEBUG] Episode error: {e}", flush=True)
         # Even on error, ensure score is strictly between 0 and 1
-        final_score = 1e-6
+        final_score = 0.01
 
     finally:
         # Always clean up and log end

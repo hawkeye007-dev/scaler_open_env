@@ -23,10 +23,8 @@ def grade(task_id: str, machine_state, network_config) -> float:
 	raw = grader(machine_state, network_config)
 	if machine_state.ids_triggered:
 		raw = min(raw, 0.50)
-	# Clamp strictly to (1e-6, 1 - 1e-6) to ensure never exactly 0.0 or 1.0
-	# Do NOT round - return exact float value
-	score = max(1e-6, min(raw, 1 - 1e-6))
-	return score
+	# OpenEnv requirement: scores must be strictly in (0.0, 1.0)
+	return round(min(max(raw, 0.01), 0.99), 3)
 
 
 def _grade_task_1(state, config) -> float:
@@ -54,8 +52,8 @@ def _grade_task_1(state, config) -> float:
 			if d.os_fingerprint == node.os:
 				score += w.get(f"node_{role}_os_correct", 0)
 
-	# Clamp to never return exactly 0.0 or 1.0
-	return max(1e-6, min(score, 1 - 1e-6))
+	# OpenEnv requirement: scores must be strictly in (0.0, 1.0)
+	return round(min(max(score, 0.01), 0.99), 3)
 
 
 def _grade_task_2(state, config) -> float:
@@ -84,8 +82,8 @@ def _grade_task_2(state, config) -> float:
 	if score >= 1.0 and state.alert_level > 0.50:
 		score = 0.85
 
-	# Clamp to never return exactly 0.0 or 1.0
-	return max(1e-6, min(score, 1 - 1e-6))
+	# OpenEnv requirement: scores must be strictly in (0.0, 1.0)
+	return round(min(max(score, 0.01), 0.99), 3)
 
 
 def _grade_task_3(state, config) -> float:
@@ -117,14 +115,13 @@ def _grade_task_3(state, config) -> float:
 			if milestone in state.action_history:
 				score += weight
 
-	# Clamp to never return exactly 0.0 or 1.0
-	# Use 1e-6 and 1 - 1e-6 as absolute boundaries
+	# OpenEnv requirement: scores must be strictly in (0.0, 1.0)
 	if score >= 0.95 and state.alert_level < 0.40:
-		score = min(score, 1 - 1e-6)  # Perfect stealth gets capped at 0.999999
+		score = min(score, 0.99)
 	elif score >= 0.95:
 		score = min(score, 0.95)
 
-	return max(1e-6, min(score, 1 - 1e-6))
+	return round(min(max(score, 0.01), 0.99), 3)
 
 
 _GRADERS = {
