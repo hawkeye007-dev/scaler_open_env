@@ -16,15 +16,17 @@ def grade(task_id: str, machine_state, network_config) -> float:
 		network_config: NetworkConfig object with topology
 	
 	Returns:
-		Final score in range (0.0, 1.0) - strictly between, never at boundaries.
+		Final score strictly between (0.0, 1.0) - never at exact boundaries.
 		Capped at 0.50 if IDS triggered.
 	"""
 	grader = _GRADERS[task_id]
 	raw = grader(machine_state, network_config)
 	if machine_state.ids_triggered:
 		raw = min(raw, 0.50)
-	# Clamp to (0.0001, 0.9999) - strictly between 0 and 1
-	return round(min(max(raw, 0.0001), 0.9999), 4)
+	# Clamp strictly to (1e-6, 1 - 1e-6) to ensure never exactly 0.0 or 1.0
+	# Do NOT round - return exact float value
+	score = max(1e-6, min(raw, 1 - 1e-6))
+	return score
 
 
 def _grade_task_1(state, config) -> float:
