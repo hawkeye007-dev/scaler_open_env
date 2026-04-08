@@ -1,0 +1,38 @@
+name: vulnnet-env
+version: 1.0.0
+description: >
+	Stateful cyber-range for pen-test agents. 3-node virtual network,
+	CVE-based exploit chains, privilege escalation, IDS alert system. Pure Python.
+author: VulnNet Team
+tags: [openenv, cybersecurity, penetration-testing, reinforcement-learning]
+
+# Task catalog
+tasks:
+	- id: task_1_scout
+		name: The Scout
+		difficulty: easy
+		max_steps: 20
+		description: Map the 3-node virtual network.
+	- id: task_2_breaker
+		name: The Breaker
+		difficulty: medium
+		max_steps: 35
+		description: Exploit Apache CVE-2021-41773. Exfiltrate /etc/passwd.
+	- id: task_3_ghost
+		name: The Ghost
+		difficulty: hard
+		max_steps: 50
+		description: Escalate to root via SUID binary. Exfiltrate /etc/shadow.
+
+# Action and observation definitions
+action_space:
+	description: Union of ScanAction | ExploitAction | SystemAction | ExfiltrateAction
+types: [ScanAction, ExploitAction, SystemAction, ExfiltrateAction]
+observation_space:
+	description: >
+		VulnNetObservation with network_map, system_context,
+		terminal_buffer, vulnerability_indicators
+
+# Reward and entry point
+reward_range: [-1.0, 1.0]
+entry_point: server.app:app
