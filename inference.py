@@ -233,7 +233,6 @@ def get_model_action(
     """Get next action from LLM model."""
     try:
         user_prompt = build_user_prompt(step, obs, task_id, history)
-        print(f"[DEBUG] Calling LLM API for step {step}...", flush=True)
         resp = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[
@@ -245,14 +244,9 @@ def get_model_action(
             stream=False,
         )
         text = (resp.choices[0].message.content or "").strip()
-        print(f"[DEBUG] LLM response: {text[:100]}", flush=True)
-        parsed = parse_action(text)
-        print(f"[DEBUG] Parsed action: {parsed}", flush=True)
-        return parsed
+        return parse_action(text)
     except Exception as e:
-        print(f"[ERROR] LLM API error step {step}: {e}", flush=True)
-        import traceback
-        print(traceback.format_exc(), flush=True)
+        print(f"[DEBUG] API error step {step}: {e}", flush=True)
         return {"action_type": "system", "command": "id"}
 
 
