@@ -26,12 +26,23 @@ tasks:
 
 # Action and observation definitions
 action_space:
-	description: Union of ScanAction | ExploitAction | SystemAction | ExfiltrateAction
-types: [ScanAction, ExploitAction, SystemAction, ExfiltrateAction]
+  description: "Union of ScanAction | ExploitAction | SystemAction | ExfiltrateAction"
+  types:
+    - ScanAction
+    - ExploitAction
+    - SystemAction
+    - ExfiltrateAction
 observation_space:
-	description: >
-		VulnNetObservation with network_map, system_context,
-		terminal_buffer, vulnerability_indicators
+  description: >
+    VulnNetObservation with network_map, system_context,
+    terminal_buffer, vulnerability_indicators
+  fields:
+    - network_map
+    - system_context
+    - terminal_buffer
+    - vulnerability_indicators
+    - done
+    - reward
 
 # Reward and entry point
 reward_range: [-1.0, 1.0]

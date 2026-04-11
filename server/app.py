@@ -31,20 +31,21 @@ class ResetRequest(BaseModel):
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "healthy", "env": "vulnnet-env", "version": "1.0.0"}
+    return {"status": "ok", "env": "vulnnet-env", "version": "1.0.0"}
 
 
 @app.post("/reset")
-def reset_endpoint(req: Optional[ResetRequest] = None) -> dict:
-    """Reset the environment with persistent singleton."""
+async def reset_endpoint(request: Request) -> dict:
     try:
-        # Handle empty body or missing fields
-        if req is None:
-            req = ResetRequest()
-        
-        task_id = req.task_id or "task_1_scout"
-        seed = req.seed or 42
-        
+        body = {}
+        try:
+            body = await request.json()
+        except Exception:
+            pass
+        task_id = body.get("task_id", "task_1_scout") or "task_1_scout"
+        seed = body.get("seed", 42)
+        if seed is None:
+            seed = 42
         obs = _env_instance.reset(task_id=task_id, seed=seed)
         return {
             "observation": obs.model_dump(),
@@ -56,6 +57,14 @@ def reset_endpoint(req: Optional[ResetRequest] = None) -> dict:
         import traceback
         print(traceback.format_exc(), flush=True)
         return {"error": str(e)}
+
+
+@app.get("/state")
+def state_endpoint() -> dict:
+    state = _env_instance.state
+    if state is None:
+        return {"episode_id": "none", "step_count": 0, "task_id": "task_1_scout"}
+    return state.model_dump()
 
 
 @app.post("/step")

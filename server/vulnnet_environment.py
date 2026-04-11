@@ -63,6 +63,19 @@ class VulnNetEnvironment(Environment):
 			start_uid=start_uid,
 		)
 
+		if task_id == "task_3_ghost":
+			self._machine.current_ip = "192.168.1.20"
+			# Also add webserver to network_map so agent can see it
+			cfg = NetworkGenerator(seed=seed).build()
+			node_b = next(n for n in cfg.nodes if n.ip == "192.168.1.20")
+			from models import DiscoveredHost
+			self._machine.network_map.append(DiscoveredHost(
+				ip=node_b.ip,
+				open_ports=node_b.open_ports,
+				os_fingerprint=node_b.os,
+				service_banners=node_b.services,
+			))
+
 		# Initialize episode state
 		self._state = VulnNetState(
 			episode_id=str(uuid4()),
