@@ -76,7 +76,7 @@ def _grade_task_2(state, config) -> float:
 		score += w["cve_41773_attempted"]
 	if state.current_uid == "www-data":
 		score += w["uid_www_data"]
-	if "/etc/passwd" in state.exfil_log:
+	if "exfil_/etc/passwd" in state.exfil_log:
 		score += w["passwd_exfiltrated"]
 
 	if score >= 1.0 and state.alert_level > 0.50:
@@ -106,7 +106,7 @@ def _grade_task_3(state, config) -> float:
 			if state.current_uid == "root":
 				score += weight
 		elif milestone == "shadow_exfiltrated":
-			if "/etc/shadow" in state.exfil_log:
+			if "exfil_/etc/shadow" in state.exfil_log:
 				score += weight
 		elif milestone == "suid_discovered":
 			if state.discovered_privesc_vectors:

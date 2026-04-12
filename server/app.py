@@ -29,6 +29,12 @@ class ResetRequest(BaseModel):
     seed: Optional[int] = None
 
 
+@app.get("/")
+def root() -> dict:
+    """Root endpoint for HF Space validation."""
+    return {"status": "ok", "env": "vulnnet-env", "version": "1.0.0"}
+
+
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok", "env": "vulnnet-env", "version": "1.0.0"}
