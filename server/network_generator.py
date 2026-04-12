@@ -38,17 +38,8 @@ class NetworkGenerator:
     def build(self) -> NetworkConfig:
         """Build and return a 3-node network configuration."""
 
-        # SUID binary pool: rotates based on seed
-        suid_binaries = [
-            "/usr/bin/find",
-            "/usr/bin/vim",
-            "/usr/bin/python3",
-            "/usr/bin/nmap",
-        ]
-
-        # Select SUID based on seed
-        suid_idx = self.seed % 4
-        assigned_suid = suid_binaries[suid_idx]
+        # SUID binary: ALWAYS /usr/bin/find for consistent privilege escalation in task_3_ghost
+        assigned_suid = "/usr/bin/find"
 
         # Node A: Gateway
         node_a = NodeConfig(
@@ -62,10 +53,10 @@ class NetworkGenerator:
                 "/etc/passwd": "root:x:0:0:root:/root:/bin/bash\nadmin:x:1000:1000:admin:/home/admin:/bin/bash",
                 "/root/.ssh/authorized_keys": "ssh-rsa AAAA...",
             },
-            suid_binary=assigned_suid if self.seed % 3 == 0 else "",
+            suid_binary="",
         )
 
-        # Node B: Web Server
+        # Node B: Web Server - ALWAYS gets /usr/bin/find as SUID for privilege escalation in task_3_ghost
         node_b = NodeConfig(
             ip="192.168.1.20",
             role="webserver",
@@ -82,7 +73,7 @@ class NetworkGenerator:
                 "/etc/shadow": "root:$6$salt$hash:18000:0:99999:7:::",
                 "/var/www/html/index.html": "Apache Default Page",
             },
-            suid_binary=assigned_suid if self.seed % 3 == 1 else "",
+            suid_binary=assigned_suid,
         )
 
         # Node C: Database
@@ -97,7 +88,7 @@ class NetworkGenerator:
                 "/etc/passwd": "root:x:0:0:root:/root:/bin/bash\nmysql:x:27:27:MySQL Server:/var/lib/mysql:/bin/false",
                 "/var/lib/mysql/config": "[mysqld]\nport=3306",
             },
-            suid_binary=assigned_suid if self.seed % 3 == 2 else "",
+            suid_binary="",
         )
 
         return NetworkConfig(

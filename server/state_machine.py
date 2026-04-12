@@ -110,7 +110,10 @@ class NetworkStateMachine:
         elif action.action_type == "exfiltrate":
             result = self._handle_exfiltrate(action)
 
-        done = self.ids_triggered or self.step_count >= self.max_steps
+        # Check task completion
+        task_complete = self._check_task_complete()
+        done = self.ids_triggered or self.step_count >= self.max_steps or task_complete
+        print(f"[DEBUG] Task {self.task_id}: task_complete={task_complete}, done={done}", flush=True)
         print(f"[DEBUG] Step {self.step_count}/{self.max_steps}: IDS={self.ids_triggered}, alert={self.alert_level:.2f}, done={done}", flush=True)
         return self._build_obs(result["buffer"], result["reward"], done)
 
@@ -148,11 +151,14 @@ class NetworkStateMachine:
                     and "webserver_found" not in self.action_history
                 ):
                     self.action_history.append("webserver_found")
+        else:
+            # Known host: give small reward for updating information
+            step_reward += 0.01
 
         buf = (
             f"Scan complete: {node.ip} | ports={node.open_ports} | OS={node.os}"
         )
-        return {"buffer": buf, "reward": step_reward - 0.002}
+        return {"buffer": buf, "reward": step_reward}
 
     def _handle_exploit(self, action: ExploitAction) -> typing.Dict[str, typing.Any]:
         """Handle an exploit action with 4 gates."""
@@ -379,6 +385,19 @@ class NetworkStateMachine:
         if self.alert_level >= 1.0 and not self.ids_triggered:
             self.ids_triggered = True
             self.action_history.append("IDS ALERT: Connection terminated.")
+
+    def _check_task_complete(self) -> bool:
+        """Check if task objectives are met."""
+        if self.task_id == "task_1_scout":
+            # Task complete when all 3 nodes discovered
+            return len(self.network_map) >= 3
+        elif self.task_id == "task_2_breaker":
+            # Task complete when www-data shell obtained AND /etc/passwd exfiltrated
+            return (self.current_uid == "www-data" and "exfil_/etc/passwd" in self.exfil_log)
+        elif self.task_id == "task_3_ghost":
+            # Task complete when root obtained AND /etc/shadow exfiltrated
+            return (self.current_uid == "root" and "exfil_/etc/shadow" in self.exfil_log)
+        return False
 
     def _build_obs(
         self, buffer: str, reward: float, done: bool
