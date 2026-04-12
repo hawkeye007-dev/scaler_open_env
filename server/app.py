@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from models import VulnNetAction, VulnNetObservation
 from server.vulnnet_environment import VulnNetEnvironment
+from server.tasks import TASK_REGISTRY
 
 
 # Persistent singleton environment
@@ -498,6 +499,15 @@ def state_endpoint() -> dict:
     if state is None:
         return {"episode_id": "none", "step_count": 0, "task_id": "task_1_scout"}
     return state.model_dump()
+
+
+@app.get("/tasks")
+def tasks_endpoint() -> dict:
+    """Get list of available tasks."""
+    return {"tasks": [
+        {"id": t.task_id, "name": t.name, "difficulty": t.difficulty, "max_steps": t.max_steps}
+        for t in TASK_REGISTRY.values()
+    ]}
 
 
 @app.post("/step")
