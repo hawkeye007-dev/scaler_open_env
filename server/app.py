@@ -452,7 +452,7 @@ def root():
             
             <footer>
                 <p>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</p>
-                <p>VulnNet OpenEnv | Powered by FastAPI + Groq LLMs | OpenEnv Competition Submission</p>
+                <p>VulnNet OpenEnv | Powered by FastAPI + LLMs | OpenEnv Competition Submission</p>
                 <p>━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</p>
             </footer>
         </div>
